@@ -29,8 +29,8 @@ const toast = document.getElementById('toast');
 const partListContainer = document.getElementById('part-list');
 const speakerBtn = document.getElementById('speaker-btn');
 const weakModeBtn = document.getElementById('weak-mode-btn');
-const weakJaToEnBtn = document.getElementById('weak-ja-to-en-btn'); // 苦手単語和英用
 const clearRecordBtn = document.getElementById('clear-record-btn');
+const jaToEnModeBtn = document.getElementById('ja-to-en-mode-btn');
 
 const weakListBtn = document.getElementById('weak-list-btn');
 const modalOverlay = document.getElementById('modal-overlay');
@@ -172,16 +172,11 @@ function renderPartButtons() {
 
   const currentWeakWords = allGradeWords.filter(w => weakIds.includes(w.id));
   weakModeBtn.textContent = `🔥 苦手単語集中暗記 (${currentWeakWords.length}語)`;
-  weakJaToEnModeBtn.textContent = `🔥 苦手単語和英 (0語)`; // 後で更新
-
   if (currentWeakWords.length === 0) {
     weakModeBtn.disabled = true;
-    weakJaToEnBtn.disabled = true;
     weakListBtn.disabled = true;
   } else {
     weakModeBtn.disabled = false;
-    weakJaToEnBtn.disabled = false;
-    weakJaToEnBtn.textContent = `🇯🇵🔥 苦手単語和英 (${currentWeakWords.length}語)`;
     weakListBtn.disabled = false;
   }
 
@@ -189,60 +184,36 @@ function renderPartButtons() {
     const partWords = allGradeWords.filter(w => w.part === cat.key);
     const isCompleted = partWords.length > 0 && partWords.every(w => masteredIds.includes(w.id));
 
-    // コンテナ（英和と和英のボタンをまとめるラッパー）
-    const groupWrapper = document.createElement('div');
-    groupWrapper.style.marginBottom = "12px";
+    const wrapper = document.createElement('div');
+    wrapper.className = 'btn-part-wrapper';
 
-    // 英和ボタン
     const btn = document.createElement('button');
     btn.className = 'btn btn-part';
     btn.textContent = `${cat.name} (${partWords.length}語)`;
+    
     if (isCompleted) {
       btn.classList.add('btn-completed');
     }
+    
     btn.onclick = () => selectRange(cat.key, false);
-    groupWrapper.appendChild(btn);
-
-    // 和英ボタン
-    const jaBtn = document.createElement('button');
-    jaBtn.className = 'btn btn-part-ja';
-    jaBtn.style.marginTop = "4px";
-    jaBtn.style.backgroundColor = "#8b5cf6";
-    jaBtn.textContent = ` └ 🇯🇵 和英: ${cat.name}`;
-    if (isCompleted) {
-      jaBtn.classList.add('btn-completed');
-    }
-    jaBtn.onclick = () => selectRange(cat.key, true);
-    groupWrapper.appendChild(jaBtn);
-
-    partListContainer.appendChild(groupWrapper);
+    wrapper.appendChild(btn);
+    partListContainer.appendChild(wrapper);
   });
 
-  // 全範囲グループ
   const allWrapper = document.createElement('div');
-  allWrapper.style.marginBottom = "12px";
+  allWrapper.className = 'btn-part-wrapper';
 
   const allBtn = document.createElement('button');
   allBtn.className = 'btn btn-part';
   allBtn.textContent = `全範囲 (${allGradeWords.length}語)`;
+
   const isAllCompleted = allGradeWords.length > 0 && allGradeWords.every(w => masteredIds.includes(w.id));
   if (isAllCompleted) {
     allBtn.classList.add('btn-completed');
   }
+
   allBtn.onclick = () => selectRange('all', false);
   allWrapper.appendChild(allBtn);
-
-  const allJaBtn = document.createElement('button');
-  allJaBtn.className = 'btn btn-part-ja';
-  allJaBtn.style.marginTop = "4px";
-  allJaBtn.style.backgroundColor = "#8b5cf6";
-  allJaBtn.textContent = ` └ 🇯🇵 和英: 全範囲 (${allGradeWords.length}語)`;
-  if (isAllCompleted) {
-    allJaBtn.classList.add('btn-completed');
-  }
-  allJaBtn.onclick = () => selectRange('all', true);
-  allWrapper.appendChild(allJaBtn);
-
   partListContainer.appendChild(allWrapper);
 }
 
@@ -491,8 +462,8 @@ clearRecordBtn.addEventListener('click', () => {
   }
 });
 
-if (weakJaToEnBtn) {
-  weakJaToEnBtn.addEventListener('click', () => {
-    selectRange('weak', true);
+if (jaToEnModeBtn) {
+  jaToEnModeBtn.addEventListener('click', () => {
+    selectRange('all', true);
   });
 }
