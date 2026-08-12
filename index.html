@@ -118,17 +118,13 @@
 <body>
 
 <div class="container">
-  <!-- 級選択画面 -->
+  <!-- 級選択画面（3・4・5級のみ） -->
   <div id="grade-screen" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
     <div class="title">英検単語マスター</div>
     <div class="grade-list">
       <button class="btn btn-grade" onclick="selectGrade('5')">英検 5級（初歩的なレベル）</button>
       <button class="btn btn-grade" onclick="selectGrade('4')">英検 4級</button>
       <button class="btn btn-grade" onclick="selectGrade('3')">英検 3級</button>
-      <button class="btn btn-grade" onclick="selectGrade('pre2')">英検 準2級</button>
-      <button class="btn btn-grade" onclick="selectGrade('2')">英検 2級</button>
-      <button class="btn btn-grade" onclick="selectGrade('pre1')">英検 準1級</button>
-      <button class="btn btn-grade" onclick="selectGrade('1')">英検 1級（最上級）</button>
     </div>
   </div>
 
@@ -137,7 +133,7 @@
     <div class="header-nav">
       <button class="btn-sub" id="back-to-grade-btn">← 級選択</button>
     </div>
-    <div class="title" id="select-title">英検5級単語帳</div>
+    <div class="title" id="select-title">英検単語帳</div>
 
     <button class="btn-weak" id="weak-mode-btn" onclick="selectRange('weak', false)">
       🔥 苦手単語集中暗記 (0語)
@@ -225,14 +221,10 @@
   window.wordsData = {};
 </script>
 
-<!-- 分割された単語データファイル -->
+<!-- 3・4・5級のデータファイルのみ読み込み -->
 <script src="data/words_5.js"></script>
 <script src="data/words_4.js"></script>
 <script src="data/words_3.js"></script>
-<script src="data/words_pre2.js"></script>
-<script src="data/words_2.js"></script>
-<script src="data/words_pre1.js"></script>
-<script src="data/words_1.js"></script>
 
 <!-- メインプログラム -->
 <script src="app.js"></script>
