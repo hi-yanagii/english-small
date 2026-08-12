@@ -4,6 +4,7 @@ let currentWord = null;
 let currentRange = '';
 let currentAudio = null;
 let isJapaneseToEnglish = false; // 和英モードフラグ
+let wordHistory = []; // 戻る機能用の履歴配列
 
 // UI要素
 const gradeScreen = document.getElementById('grade-screen');
@@ -22,6 +23,7 @@ const rememberBtn = document.getElementById('remember-btn');
 
 const backToGradeBtn = document.getElementById('back-to-grade-btn');
 const changePartBtn = document.getElementById('change-part-btn');
+const prevBtn = document.getElementById('prev-btn'); // 戻るボタン
 const saveBtn = document.getElementById('save-btn');
 const keepBtn = document.getElementById('keep-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -220,6 +222,7 @@ function renderPartButtons() {
 function selectRange(range, isJaToEn = false) {
   currentRange = range;
   isJapaneseToEnglish = isJaToEn;
+  wordHistory = []; // 範囲選択時に履歴をリセット
   const allGradeWords = (typeof wordsData !== 'undefined' && wordsData[currentGrade]) ? wordsData[currentGrade] : [];
   
   let filtered = [];
@@ -259,6 +262,11 @@ function pickNextWord() {
 
   progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
 
+  // 現在の単語がある場合は履歴に追加
+  if (currentWord) {
+    wordHistory.push(currentWord);
+  }
+
   let available = unmastered;
   if (unmastered.length > 1 && currentWord) {
     available = unmastered.filter(w => w.id !== currentWord.id);
@@ -267,6 +275,10 @@ function pickNextWord() {
   const randomIndex = Math.floor(Math.random() * available.length);
   currentWord = available[randomIndex];
 
+  updateCardDisplay();
+}
+
+function updateCardDisplay() {
   if (isJapaneseToEnglish) {
     wordText.textContent = currentWord.meaning;
     meaningText.textContent = currentWord.word;
@@ -278,6 +290,30 @@ function pickNextWord() {
   meaningText.classList.add('invisible');
   flipBtn.classList.remove('hidden');
   judgeBtnGroup.classList.add('hidden');
+}
+
+// 前に戻るボタンの処理
+if (prevBtn) {
+  prevBtn.addEventListener('click', () => {
+    if (wordHistory.length === 0) {
+      showToast("これ以上前に戻れません");
+      return;
+    }
+
+    // もし現在の単語が「覚えた」などとして未マスターから外れていたら、戻すために一時的に再設定
+    if (currentWord && currentWord.isMastered) {
+      currentWord.isMastered = false;
+    }
+
+    // 履歴の最後尾を取り出す
+    currentWord = wordHistory.pop();
+    
+    // 表示を更新
+    updateCardDisplay();
+    
+    const unmastered = wordList.filter(w => !w.isMastered);
+    progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
+  });
 }
 
 function openWeakListModal() {
