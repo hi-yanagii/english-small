@@ -3,6 +3,7 @@ let wordList = [];
 let currentWord = null;
 let currentRange = '';
 let currentAudio = null;
+let isJapaneseToEnglish = false; // 和英モードフラグ
 
 // UI要素
 const gradeScreen = document.getElementById('grade-screen');
@@ -29,6 +30,7 @@ const partListContainer = document.getElementById('part-list');
 const speakerBtn = document.getElementById('speaker-btn');
 const weakModeBtn = document.getElementById('weak-mode-btn');
 const clearRecordBtn = document.getElementById('clear-record-btn');
+const jaToEnModeBtn = document.getElementById('ja-to-en-mode-btn'); // 和英モードボタン
 
 const weakListBtn = document.getElementById('weak-list-btn');
 const modalOverlay = document.getElementById('modal-overlay');
@@ -221,7 +223,7 @@ function renderPartButtons() {
       btn.classList.add('btn-completed');
     }
     
-    btn.onclick = () => selectRange(cat.key);
+    btn.onclick = () => selectRange(cat.key, false);
     wrapper.appendChild(btn);
     partListContainer.appendChild(wrapper);
   });
@@ -238,13 +240,14 @@ function renderPartButtons() {
     allBtn.classList.add('btn-completed');
   }
 
-  allBtn.onclick = () => selectRange('all');
+  allBtn.onclick = () => selectRange('all', false);
   allWrapper.appendChild(allBtn);
   partListContainer.appendChild(allWrapper);
 }
 
-function selectRange(range) {
+function selectRange(range, isJaToEn = false) {
   currentRange = range;
+  isJapaneseToEnglish = isJaToEn;
   const allGradeWords = (typeof wordsData !== 'undefined' && wordsData[currentGrade]) ? wordsData[currentGrade] : [];
   
   let filtered = [];
@@ -268,6 +271,9 @@ function selectRange(range) {
   studyScreen.classList.remove('hidden');
   completeScreen.classList.add('hidden');
   
+  // モードに応じてボタンのテキストを変更
+  flipBtn.textContent = isJapaneseToEnglish ? "英語訳" : "日本語訳";
+
   pickNextWord();
 }
 
@@ -290,10 +296,17 @@ function pickNextWord() {
   const randomIndex = Math.floor(Math.random() * available.length);
   currentWord = available[randomIndex];
 
-  wordText.textContent = currentWord.word;
-  meaningText.textContent = currentWord.meaning;
-  meaningText.classList.add('invisible');
+  if (isJapaneseToEnglish) {
+    // 和英モード：上に日本語、下に英語
+    wordText.textContent = currentWord.meaning;
+    meaningText.textContent = currentWord.word;
+  } else {
+    // 英和モード：上に英語、下に日本語
+    wordText.textContent = currentWord.word;
+    meaningText.textContent = currentWord.meaning;
+  }
 
+  meaningText.classList.add('invisible');
   flipBtn.classList.remove('hidden');
   judgeBtnGroup.classList.add('hidden');
 }
@@ -310,7 +323,6 @@ function openWeakListModal() {
     const tr = document.createElement('tr');
     tr.dataset.id = item.id;
 
-    // チェックボックス列
     const tdCheck = document.createElement('td');
     tdCheck.style.textAlign = 'center';
     const checkbox = document.createElement('input');
@@ -480,3 +492,10 @@ clearRecordBtn.addEventListener('click', () => {
     showToast(`${name}の記録を消去しました`);
   }
 });
+
+// 和英モードボタンのイベント
+if (jaToEnModeBtn) {
+  jaToEnModeBtn.addEventListener('click', () => {
+    selectRange('all', true);
+  });
+}
