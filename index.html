@@ -41,25 +41,28 @@
       background-color: #3b82f6; color: white; margin-bottom: 10px; font-size: 16px; padding: 14px; font-weight: bold;
     }
     .grade-list { max-height: 480px; overflow-y: auto; padding-right: 4px; }
-    .btn-part-wrapper {
-      margin-bottom: 8px; width: 100%;
-    }
     .btn-part {
-      background-color: #3b82f6; color: white; text-align: left; padding: 12px 16px; width: 100%;
+      background-color: #3b82f6; color: white; text-align: left; padding: 10px 16px; width: 100%; font-size: 14px;
+    }
+    .btn-part-ja {
+      background-color: #8b5cf6; color: white; text-align: left; padding: 8px 16px; width: 100%; font-size: 13px;
     }
     .btn-completed {
       background-color: #10b981 !important;
     }
     .btn-weak {
-      background-color: #dc2626; color: white; font-size: 16px; padding: 12px;
-      margin-bottom: 8px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
+      background-color: #dc2626; color: white; font-size: 15px; padding: 10px;
+      margin-bottom: 6px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
     }
     .btn-weak:disabled {
       background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed;
     }
     .btn-ja-to-en {
-      background-color: #8b5cf6; color: white; font-size: 16px; padding: 12px;
-      margin-top: 8px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
+      background-color: #8b5cf6; color: white; font-size: 15px; padding: 10px;
+      margin-bottom: 6px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
+    }
+    .btn-ja-to-en:disabled {
+      background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed;
     }
     .btn-list {
       background-color: #475569; color: white; font-size: 14px; padding: 10px;
@@ -90,7 +93,7 @@
       background: rgba(15, 23, 42, 0.85); color: white; padding: 8px 16px;
       border-radius: 20px; font-size: 14px; font-weight: bold; transition: opacity 0.3s;
     }
-    .part-list { max-height: 400px; overflow-y: auto; padding-right: 4px; }
+    .part-list { max-height: 360px; overflow-y: auto; padding-right: 4px; }
 
     /* モーダル（苦手リスト画面）スタイル */
     .modal-overlay {
@@ -138,20 +141,19 @@
     <button class="btn-weak" id="weak-mode-btn" onclick="selectRange('weak', false)">
       🔥 苦手単語集中暗記 (0語)
     </button>
+    <button class="btn-ja-to-en" id="weak-ja-to-en-btn">
+      🇯🇵🔥 苦手単語和英 (0語)
+    </button>
     <button class="btn-list" id="weak-list-btn">
       📋 苦手単語リスト
     </button>
 
     <div class="part-list" id="part-list">
-      <!-- JavaScriptでカテゴリーボタンと全範囲ボタンを動的生成 -->
+      <!-- JavaScriptでカテゴリー別（英和・和英）および全範囲（英和・和英）を動的生成 -->
     </div>
 
     <button class="btn-clear-record" id="clear-record-btn">
       🗑️ 学習クリア
-    </button>
-    
-    <button class="btn-ja-to-en" id="ja-to-en-mode-btn">
-      🇯🇵→🔤 和英モード (全範囲)
     </button>
   </div>
 
