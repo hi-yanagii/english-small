@@ -57,6 +57,10 @@
     .btn-weak:disabled {
       background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed;
     }
+    .btn-ja-to-en {
+      background-color: #8b5cf6; color: white; font-size: 16px; padding: 12px;
+      margin-bottom: 8px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
+    }
     .btn-list {
       background-color: #475569; color: white; font-size: 14px; padding: 10px;
       margin-bottom: 12px; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;
@@ -86,7 +90,7 @@
       background: rgba(15, 23, 42, 0.85); color: white; padding: 8px 16px;
       border-radius: 20px; font-size: 14px; font-weight: bold; transition: opacity 0.3s;
     }
-    .part-list { max-height: 500px; overflow-y: auto; padding-right: 4px; }
+    .part-list { max-height: 400px; overflow-y: auto; padding-right: 4px; }
 
     /* モーダル（苦手リスト画面）スタイル */
     .modal-overlay {
@@ -135,8 +139,11 @@
     </div>
     <div class="title" id="select-title">英検5級単語帳</div>
 
-    <button class="btn-weak" id="weak-mode-btn" onclick="selectRange('weak')">
+    <button class="btn-weak" id="weak-mode-btn" onclick="selectRange('weak', false)">
       🔥 苦手単語集中暗記 (0語)
+    </button>
+    <button class="btn-ja-to-en" id="ja-to-en-mode-btn">
+      🇯🇵→🔤 和英モード (全範囲)
     </button>
     <button class="btn-list" id="weak-list-btn">
       📋 苦手単語リスト
