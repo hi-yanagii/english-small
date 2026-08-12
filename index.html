@@ -88,6 +88,7 @@
     }
     .part-list { max-height: 500px; overflow-y: auto; padding-right: 4px; }
 
+    /* モーダル（苦手リスト画面）スタイル */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.5); display: flex;
@@ -120,6 +121,10 @@
       <button class="btn btn-grade" onclick="selectGrade('5')">英検 5級（初歩的なレベル）</button>
       <button class="btn btn-grade" onclick="selectGrade('4')">英検 4級</button>
       <button class="btn btn-grade" onclick="selectGrade('3')">英検 3級</button>
+      <button class="btn btn-grade" onclick="selectGrade('pre2')">英検 準2級</button>
+      <button class="btn btn-grade" onclick="selectGrade('2')">英検 2級</button>
+      <button class="btn btn-grade" onclick="selectGrade('pre1')">英検 準1級</button>
+      <button class="btn btn-grade" onclick="selectGrade('1')">英検 1級（最上級）</button>
     </div>
   </div>
 
@@ -193,6 +198,7 @@
       <table class="weak-table">
         <thead>
           <tr>
+            <th style="text-align: center; width: 45px;">覚えた</th>
             <th>英語</th>
             <th>日本語訳</th>
             <th style="text-align: center; width: 50px;">発音</th>
@@ -216,6 +222,10 @@
 <script src="data/words_5.js"></script>
 <script src="data/words_4.js"></script>
 <script src="data/words_3.js"></script>
+<script src="data/words_pre2.js"></script>
+<script src="data/words_2.js"></script>
+<script src="data/words_pre1.js"></script>
+<script src="data/words_1.js"></script>
 
 <!-- メインプログラム -->
 <script src="app.js"></script>
