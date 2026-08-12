@@ -30,7 +30,7 @@ const partListContainer = document.getElementById('part-list');
 const speakerBtn = document.getElementById('speaker-btn');
 const weakModeBtn = document.getElementById('weak-mode-btn');
 const clearRecordBtn = document.getElementById('clear-record-btn');
-const jaToEnModeBtn = document.getElementById('ja-to-en-mode-btn'); // 和英モードボタン
+const jaToEnModeBtn = document.getElementById('ja-to-en-mode-btn');
 
 const weakListBtn = document.getElementById('weak-list-btn');
 const modalOverlay = document.getElementById('modal-overlay');
@@ -38,7 +38,7 @@ const closeModalBtn = document.getElementById('close-modal-btn');
 const weakTableBody = document.getElementById('weak-table-body');
 const modalTitle = document.getElementById('modal-title');
 
-// 各級のカテゴリー表示名定義（全7級対応）
+// 3・4・5級のカテゴリー表示名定義
 const categoryNames = {
   "5": [
     { key: "1_date", name: "① 日時・カレンダー" },
@@ -71,41 +71,13 @@ const categoryNames = {
     { key: "4_verbs", name: "④ 3級重要動詞" },
     { key: "5_adjectives", name: "⑤ 状態・評価の形容詞" },
     { key: "6_phrases", name: "⑥ 熟語・慣用表現" }
-  ],
-  "pre2": [
-    { key: "1_society", name: "① 社会・メディア" },
-    { key: "2_science", name: "② 科学・自然環境" },
-    { key: "3_verbs", name: "③ 準2級重要動詞" },
-    { key: "4_adjectives", name: "④ 応用形容詞・副詞" },
-    { key: "5_phrases", name: "⑤ 重要熟語" }
-  ],
-  "2": [
-    { key: "1_business", name: "① ビジネス・経済" },
-    { key: "2_technology", name: "② 医療・テクノロジー" },
-    { key: "3_verbs", name: "③ 2級重要動詞" },
-    { key: "4_phrases", name: "④ 発展熟語" }
-  ],
-  "pre1": [
-    { key: "1_academic", name: "① 学術・環境問題" },
-    { key: "2_politics", name: "② 政治・国際関係" },
-    { key: "3_high_verbs", name: "③ 準1級難関動詞" },
-    { key: "4_phrases", name: "④ ハイレベル熟語" }
-  ],
-  "1": [
-    { key: "1_top_vocab", name: "① 1級超高難度語彙 A" },
-    { key: "2_top_vocab_b", name: "② 1級超高難度語彙 B" },
-    { key: "3_top_phrases", name: "③ 1級最難関熟語" }
   ]
 };
 
 const gradeDisplayNames = {
   "5": "英検 5級",
   "4": "英検 4級",
-  "3": "英検 3級",
-  "pre2": "英検 準2級",
-  "2": "英検 2級",
-  "pre1": "英検 準1級",
-  "1": "英検 1級"
+  "3": "英検 3級"
 };
 
 function playAudio(word) {
@@ -271,7 +243,6 @@ function selectRange(range, isJaToEn = false) {
   studyScreen.classList.remove('hidden');
   completeScreen.classList.add('hidden');
   
-  // モードに応じてボタンのテキストを変更
   flipBtn.textContent = isJapaneseToEnglish ? "英語訳" : "日本語訳";
 
   pickNextWord();
@@ -297,11 +268,9 @@ function pickNextWord() {
   currentWord = available[randomIndex];
 
   if (isJapaneseToEnglish) {
-    // 和英モード：上に日本語、下に英語
     wordText.textContent = currentWord.meaning;
     meaningText.textContent = currentWord.word;
   } else {
-    // 英和モード：上に英語、下に日本語
     wordText.textContent = currentWord.word;
     meaningText.textContent = currentWord.meaning;
   }
@@ -493,7 +462,6 @@ clearRecordBtn.addEventListener('click', () => {
   }
 });
 
-// 和英モードボタンのイベント
 if (jaToEnModeBtn) {
   jaToEnModeBtn.addEventListener('click', () => {
     selectRange('all', true);
