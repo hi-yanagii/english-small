@@ -18,12 +18,12 @@
       text-align: center; margin: 16px; position: relative;
     }
     .header-nav {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 4px;
     }
-    .progress { color: #666; font-size: 14px; }
+    .progress { color: #666; font-size: 13px; }
     .btn-sub {
-      background-color: #64748b; color: white; border: none; padding: 6px 12px;
-      border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;
+      background-color: #64748b; color: white; border: none; padding: 6px 10px;
+      border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
     }
     .card {
       background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px;
@@ -123,7 +123,7 @@
 <div class="container">
   <!-- 級選択画面（5・4・3級のみ） -->
   <div id="grade-screen" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-    <!-- 挿絵画像（90%サイズ：270px） -->
+    <!-- 挿絵画像 -->
     <div style="text-align: center; margin-bottom: 12px;">
       <img src="books.png" alt="単語帳" style="width: 270px; height: auto; border-radius: 8px;">
     </div>
@@ -166,6 +166,7 @@
   <div id="study-screen" class="hidden" style="width: 100%;">
     <div class="header-nav">
       <button class="btn-sub" id="change-part-btn">← 範囲変更</button>
+      <button class="btn-sub" id="prev-btn" style="background-color: #475569;">← 前に戻る</button>
       <div class="progress" id="progress-text">残り: 0 単語</div>
       <button class="btn-sub" id="save-btn" style="background-color: #059669;">💾 セーブ</button>
     </div>
