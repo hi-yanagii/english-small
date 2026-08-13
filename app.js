@@ -24,7 +24,7 @@ const rememberBtn = document.getElementById('remember-btn'); // 「覚えた」�
 
 const backToGradeBtn = document.getElementById('back-to-grade-btn'); // 級選択へ戻るボタン
 const changePartBtn = document.getElementById('change-part-btn'); // カテゴリー選択へ戻るボタン
-const prevBtn = document.getElementById('prev-btn'); // 「戻る」ボタン
+const prevBtn = document.getElementById('prev-btn'); // 「前に戻る」ボタン
 const saveBtn = document.getElementById('save-btn'); // 進捗保存ボタン
 const keepBtn = document.getElementById('keep-btn'); // 完了画面から戻るボタン
 const resetBtn = document.getElementById('reset-btn'); // リセットボタン
@@ -87,18 +87,15 @@ const gradeDisplayNames = {
 function playAudio(word) {
   if (!word) return;
 
-  // すでに再生中なら停止して最初からやり直す
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
   }
 
-  // 単語名からファイル名を作成（スペースをアンダースコアに変換）
   const fileName = word.toLowerCase().replace(/\s+/g, '_');
   currentAudio = new Audio(`audio/${fileName}.mp3`);
   currentAudio.volume = 1.0;
 
-  // 再生を試み、エラーが出たらブラウザ標準の音声合成で読み上げる
   const playPromise = currentAudio.play();
   if (playPromise !== undefined) {
     playPromise.catch(() => {
@@ -153,6 +150,7 @@ function addWeakId(id) {
 
 // --- 一時的なメッセージ表示 ---
 function showToast(message) {
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.remove('hidden');
   setTimeout(() => { toast.classList.add('hidden'); }, 1500);
@@ -161,29 +159,33 @@ function showToast(message) {
 // --- 級選択処理 ---
 function selectGrade(grade) {
   currentGrade = grade;
-  selectTitle.textContent = `${gradeDisplayNames[currentGrade] || `英検${currentGrade}級`}単語帳`;
+  if (selectTitle) {
+    selectTitle.textContent = `${gradeDisplayNames[currentGrade] || `英検${currentGrade}級`}単語帳`;
+  }
+  if (gradeScreen) gradeScreen.classList.add('hidden');
+  if (selectScreen) selectScreen.classList.remove('hidden');
   
-  gradeScreen.classList.add('hidden');
-  selectScreen.classList.remove('hidden');
-  
-  renderPartButtons(); // ボタンを表示
+  renderPartButtons();
 }
 
 // --- カテゴリー選択画面の描画 ---
 function renderPartButtons() {
+  if (!partListContainer) return;
   partListContainer.innerHTML = '';
   const masteredIds = getMasteredIds();
   const weakIds = getWeakIds();
   const allGradeWords = (typeof wordsData !== 'undefined' && wordsData[currentGrade]) ? wordsData[currentGrade] : [];
   const categories = categoryNames[currentGrade] || [];
 
-  // 苦手ボタンの更新
   const currentWeakWords = allGradeWords.filter(w => weakIds.includes(w.id));
-  weakModeBtn.textContent = `🔥 苦手単語集中暗記 (${currentWeakWords.length}語)`;
-  weakModeBtn.disabled = currentWeakWords.length === 0;
-  weakListBtn.disabled = currentWeakWords.length === 0;
+  if (weakModeBtn) {
+    weakModeBtn.textContent = `🔥 苦手単語集中暗記 (${currentWeakWords.length}語)`;
+    weakModeBtn.disabled = currentWeakWords.length === 0;
+  }
+  if (weakListBtn) {
+    weakListBtn.disabled = currentWeakWords.length === 0;
+  }
 
-  // カテゴリーボタンの作成
   categories.forEach(cat => {
     const partWords = allGradeWords.filter(w => w.part === cat.key);
     const isCompleted = partWords.length > 0 && partWords.every(w => masteredIds.includes(w.id));
@@ -201,7 +203,6 @@ function renderPartButtons() {
     partListContainer.appendChild(wrapper);
   });
 
-  // 全範囲ボタンの作成
   const allWrapper = document.createElement('div');
   allWrapper.className = 'btn-part-wrapper';
   const allBtn = document.createElement('button');
@@ -237,11 +238,11 @@ function selectRange(range, isJaToEn = false) {
     isMastered: (range === 'weak') ? false : masteredIds.includes(w.id)
   }));
   
-  selectScreen.classList.add('hidden');
-  studyScreen.classList.remove('hidden');
-  completeScreen.classList.add('hidden');
+  if (selectScreen) selectScreen.classList.add('hidden');
+  if (studyScreen) studyScreen.classList.remove('hidden');
+  if (completeScreen) completeScreen.classList.add('hidden');
   
-  flipBtn.textContent = isJapaneseToEnglish ? "英語訳" : "日本語訳";
+  if (flipBtn) flipBtn.textContent = isJapaneseToEnglish ? "英語訳" : "日本語訳";
   pickNextWord();
 }
 
@@ -249,17 +250,20 @@ function selectRange(range, isJaToEn = false) {
 function pickNextWord() {
   const unmastered = wordList.filter(w => !w.isMastered);
 
-  // 全てマスター済みの場合は完了画面へ
   if (unmastered.length === 0) {
-    studyScreen.classList.add('hidden');
-    completeScreen.classList.remove('hidden');
+    if (studyScreen) studyScreen.classList.add('hidden');
+    if (completeScreen) completeScreen.classList.remove('hidden');
     return;
   }
 
-  progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
+  if (progressText) {
+    progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
+  }
 
-  // 現在の単語を履歴に追加
-  if (currentWord) wordHistory.push(currentWord);
+  // 現在の単語がある場合は履歴に追加
+  if (currentWord) {
+    wordHistory.push(currentWord);
+  }
 
   let available = unmastered;
   if (unmastered.length > 1 && currentWord) {
@@ -272,8 +276,10 @@ function pickNextWord() {
   displayCurrentWord();
 }
 
-// --- 単語を表示する ---
+// --- 単語を表示する共通関数 ---
 function displayCurrentWord() {
+  if (!wordText || !meaningText || !flipBtn || !judgeBtnGroup) return;
+
   if (isJapaneseToEnglish) {
     wordText.textContent = currentWord.meaning;
     meaningText.textContent = currentWord.word;
@@ -287,18 +293,23 @@ function displayCurrentWord() {
   judgeBtnGroup.classList.add('hidden');
 }
 
-// --- 「戻る」ボタンの機能 ---
+// --- 「前に戻る」ボタンの機能 ---
 if (prevBtn) {
   prevBtn.onclick = () => {
     if (wordHistory.length === 0) {
       showToast("これ以上前に戻れません");
       return;
     }
-    if (currentWord && currentWord.isMastered) currentWord.isMastered = false;
+    if (currentWord && currentWord.isMastered) {
+      currentWord.isMastered = false;
+    }
     currentWord = wordHistory.pop();
     displayCurrentWord();
+
     const unmastered = wordList.filter(w => !w.isMastered);
-    progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
+    if (progressText) {
+      progressText.textContent = `残り: ${unmastered.length} / ${wordList.length}`;
+    }
   };
 }
 
@@ -308,20 +319,50 @@ function openWeakListModal() {
   const allGradeWords = (typeof wordsData !== 'undefined' && wordsData[currentGrade]) ? wordsData[currentGrade] : [];
   const currentWeakWords = allGradeWords.filter(w => weakIds.includes(w.id));
 
-  modalTitle.textContent = `${gradeDisplayNames[currentGrade] || `英検${currentGrade}級`} 苦手単語 (${currentWeakWords.length}語)`;
+  if (modalTitle) {
+    modalTitle.textContent = `${gradeDisplayNames[currentGrade] || `英検${currentGrade}級`} 苦手単語 (${currentWeakWords.length}語)`;
+  }
+  if (!weakTableBody) return;
   weakTableBody.innerHTML = '';
 
   currentWeakWords.forEach(item => {
     const tr = document.createElement('tr');
     tr.dataset.id = item.id;
-    // ...各項目を表示するテーブルの構築（略）
-    // (ここでは説明の都合上、DOM作成部分は省略しますが、実際はチェックボックス付きで生成されます)
+
+    const tdCheck = document.createElement('td');
+    tdCheck.style.textAlign = 'center';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    tdCheck.appendChild(checkbox);
+    tr.appendChild(tdCheck);
+
+    const tdWord = document.createElement('td');
+    tdWord.style.fontWeight = 'bold';
+    tdWord.textContent = item.word;
+    tr.appendChild(tdWord);
+
+    const tdMeaning = document.createElement('td');
+    tdMeaning.textContent = item.meaning;
+    tr.appendChild(tdMeaning);
+
+    const tdAudio = document.createElement('td');
+    tdAudio.style.textAlign = 'center';
+    const audioBtn = document.createElement('button');
+    audioBtn.className = 'audio-btn';
+    audioBtn.textContent = '🔊';
+    audioBtn.onclick = () => playAudio(item.word);
+    tdAudio.appendChild(audioBtn);
+    tr.appendChild(tdAudio);
+
+    weakTableBody.appendChild(tr);
   });
-  modalOverlay.classList.remove('hidden');
+
+  if (modalOverlay) modalOverlay.classList.remove('hidden');
 }
 
 // --- 苦手単語の保存と閉じる処理 ---
 function saveCheckedWeakWords() {
+  if (!weakTableBody) return;
   const rows = weakTableBody.querySelectorAll('tr');
   let weakIds = getWeakIds();
   let changed = false;
@@ -343,66 +384,111 @@ function saveCheckedWeakWords() {
 }
 
 // --- イベント登録 ---
-weakListBtn.addEventListener('click', () => { openWeakListModal(); });
-closeModalBtn.addEventListener('click', () => { saveCheckedWeakWords(); modalOverlay.classList.add('hidden'); });
-modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) { saveCheckedWeakWords(); modalOverlay.classList.add('hidden'); } });
+if (weakListBtn) {
+  weakListBtn.addEventListener('click', () => { openWeakListModal(); });
+}
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', () => { saveCheckedWeakWords(); if (modalOverlay) modalOverlay.classList.add('hidden'); });
+}
+if (modalOverlay) {
+  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) { saveCheckedWeakWords(); modalOverlay.classList.add('hidden'); } });
+}
 
-if (speakerBtn) { speakerBtn.addEventListener('click', () => { if (currentWord) playAudio(currentWord.word); }); }
-wordText.style.cursor = 'pointer';
-wordText.addEventListener('click', () => { if (currentWord) playAudio(currentWord.word); });
+if (speakerBtn) { 
+  speakerBtn.addEventListener('click', () => { if (currentWord) playAudio(currentWord.word); }); 
+}
 
-flipBtn.addEventListener('click', () => {
-  meaningText.classList.remove('invisible');
-  flipBtn.classList.add('hidden');
-  judgeBtnGroup.classList.remove('hidden');
-  if (currentWord) playAudio(currentWord.word);
-});
+if (wordText) {
+  wordText.style.cursor = 'pointer';
+  wordText.addEventListener('click', () => { if (currentWord) playAudio(currentWord.word); });
+}
 
-forgetBtn.addEventListener('click', () => {
-  if (currentWord) addWeakId(currentWord.id);
-  pickNextWord();
-});
+if (flipBtn) {
+  flipBtn.addEventListener('click', () => {
+    if (meaningText) meaningText.classList.remove('invisible');
+    flipBtn.classList.add('hidden');
+    if (judgeBtnGroup) judgeBtnGroup.classList.remove('hidden');
+    if (currentWord) playAudio(currentWord.word);
+  });
+}
 
-rememberBtn.addEventListener('click', () => {
-  currentWord.isMastered = true;
-  if (currentRange !== 'weak') {
-    const masteredIds = getMasteredIds();
-    if (!masteredIds.includes(currentWord.id)) {
-      masteredIds.push(currentWord.id);
-      saveMasteredIds(masteredIds);
+if (forgetBtn) {
+  forgetBtn.addEventListener('click', () => {
+    if (currentWord) addWeakId(currentWord.id);
+    pickNextWord();
+  });
+}
+
+if (rememberBtn) {
+  rememberBtn.addEventListener('click', () => {
+    if (!currentWord) return;
+    currentWord.isMastered = true;
+    if (currentRange !== 'weak') {
+      const masteredIds = getMasteredIds();
+      if (!masteredIds.includes(currentWord.id)) {
+        masteredIds.push(currentWord.id);
+        saveMasteredIds(masteredIds);
+      }
     }
-  }
-  pickNextWord();
-});
+    pickNextWord();
+  });
+}
 
 // --- 各画面制御 ---
-backToGradeBtn.addEventListener('click', () => { selectScreen.classList.add('hidden'); gradeScreen.classList.remove('hidden'); });
-changePartBtn.addEventListener('click', () => { if (currentAudio) currentAudio.pause(); studyScreen.classList.add('hidden'); renderPartButtons(); selectScreen.classList.remove('hidden'); });
-saveBtn.addEventListener('click', () => { 
-    // 保存処理 ...
+if (backToGradeBtn) {
+  backToGradeBtn.addEventListener('click', () => { if (selectScreen) selectScreen.classList.add('hidden'); if (gradeScreen) gradeScreen.classList.remove('hidden'); });
+}
+if (changePartBtn) {
+  changePartBtn.addEventListener('click', () => { if (currentAudio) currentAudio.pause(); if (studyScreen) studyScreen.classList.add('hidden'); renderPartButtons(); if (selectScreen) selectScreen.classList.remove('hidden'); });
+}
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => { 
+    if (currentRange !== 'weak') {
+      const masteredIds = getMasteredIds();
+      wordList.forEach(w => {
+        if (w.isMastered && !masteredIds.includes(w.id)) {
+          masteredIds.push(w.id);
+        }
+      });
+      saveMasteredIds(masteredIds);
+    }
     showToast("進捗を保存しました！"); 
-});
-keepBtn.addEventListener('click', () => { completeScreen.classList.add('hidden'); renderPartButtons(); selectScreen.classList.remove('hidden'); });
+  });
+}
+if (keepBtn) {
+  keepBtn.addEventListener('click', () => { if (completeScreen) completeScreen.classList.add('hidden'); renderPartButtons(); if (selectScreen) selectScreen.classList.remove('hidden'); });
+}
 
 // --- リセットと記録クリア ---
-resetBtn.addEventListener('click', () => {
-  if (confirm("現在の範囲の進捗をリセットして最初からやり直しますか？")) {
-    // リセットロジック...
-    completeScreen.classList.add('hidden');
-    renderPartButtons();
-    selectScreen.classList.remove('hidden');
-  }
-});
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    if (confirm("現在の範囲の進捗をリセットして最初からやり直しますか？")) {
+      if (currentRange === 'weak') {
+        saveWeakIds([]);
+      } else {
+        const masteredIds = getMasteredIds();
+        const currentPartIds = wordList.map(w => w.id);
+        const updatedIds = masteredIds.filter(id => !currentPartIds.includes(id));
+        saveMasteredIds(updatedIds);
+      }
+      if (completeScreen) completeScreen.classList.add('hidden');
+      renderPartButtons();
+      if (selectScreen) selectScreen.classList.remove('hidden');
+    }
+  });
+}
 
-clearRecordBtn.addEventListener('click', () => {
-  const name = gradeDisplayNames[currentGrade] || `英検${currentGrade}級`;
-  if (confirm(`今までの学習記録（${name}）をクリアしますか？`)) {
-    saveMasteredIds([]);
-    saveWeakIds([]);
-    renderPartButtons();
-    showToast(`${name}の記録を消去しました`);
-  }
-});
+if (clearRecordBtn) {
+  clearRecordBtn.addEventListener('click', () => {
+    const name = gradeDisplayNames[currentGrade] || `英検${currentGrade}級`;
+    if (confirm(`今までの学習記録（${name}）をクリアしますか？`)) {
+      saveMasteredIds([]);
+      saveWeakIds([]);
+      renderPartButtons();
+      showToast(`${name}の記録を消去しました`);
+    }
+  });
+}
 
 if (jaToEnModeBtn) {
   jaToEnModeBtn.addEventListener('click', () => { selectRange('all', true); });
